@@ -1,0 +1,5 @@
+{
+  "app": "cinema-finder",
+  "limits": "This saves the guide. The Telegram bot, current showtimes and bookings need internet.",
+  "spa": false
+}
