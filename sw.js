@@ -1,4 +1,4 @@
-const CONFIG = {"app":"cinema-finder","version":"a35e697a948a60882cc9","assets":["icon-512.png","icon.svg","index.html","logo-512.png","logo.svg","manifest.webmanifest","offline-client.js"],"pages":["index.html"],"spa":false};
+const CONFIG = {"app":"cinema-finder","version":"4c3fa8f6b655c135ac6e","assets":["icon-512.png","icon.svg","index.html","logo-512.png","logo.svg","manifest.webmanifest","offline-client.js"],"pages":["index.html"],"spa":false};
 const BASE = new URL('./', self.location.href);
 const PREFIX = 'pages-offline-' + CONFIG.app + '-';
 const CACHE = PREFIX + CONFIG.version;
