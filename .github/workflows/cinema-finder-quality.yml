@@ -1,0 +1,55 @@
+name: Cinema Finder offline integrity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build-offline.py"
+      - "tests/test_build_offline.py"
+      - ".github/workflows/cinema-finder-quality.yml"
+      - "**/*.html"
+      - "offline-assets.json"
+      - "sw.js"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run isolated safety tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Check committed complete offline bundle read-only
+        id: committed_offline_check
+        continue-on-error: true
+        run: python3 scripts/build-offline.py --check
+      - name: Regenerate candidate only in CI checkout if stale
+        if: steps.committed_offline_check.outcome == 'failure'
+        run: |
+          python3 scripts/build-offline.py
+          python3 scripts/build-offline.py --check
+          git status --short
+      - name: Attach repair candidate for review only (not published)
+        if: steps.committed_offline_check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinema-finder-offline-repair-candidate
+          path: |
+            sw.js
+            offline-assets.json
+            index.html
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail quality gate if offline files were stale
+        if: steps.committed_offline_check.outcome == 'failure'
+        run: |
+          echo 'Offline files stale: inspect and commit verified regenerated originals.' >&2
+          exit 1
